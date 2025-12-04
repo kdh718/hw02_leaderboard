@@ -28,7 +28,7 @@ def get_leaderboard_data():
     
     # Accuracy 점수 (예시 데이터) 🎯
     scores_accuracy_dict = {
-        20231837: 0.9, 20211402: 0, 20211733: 0, 20231851: 0, 20231852: 0,
+        20231837: 0, 20211402: 0, 20211733: 0, 20231851: 0, 20231852: 0,
         20231846: 0, 20231831: 0, 20231843: 0, 20230320: 0, 20231854: 0,
         20220378: 0, 20211168: 0, 20210261: 0, 20200025: 0, 20231218: 0,
         20241901: 0, 20221593: 0, 20201227: 0, 20241909: 0, 20211166: 0,
@@ -39,35 +39,36 @@ def get_leaderboard_data():
         20201663: 0, 20221300: 0, 20231838: 0, 20191666: 0, 20191579: 0
     }
     
-    # RMSE 점수 (예시 데이터) 📉
-    scores_rmse_dict = {
-        20231837: 130, 20211402: 999, 20211733: 999, 20231851: 999, 20231852: 999,
-        20231846: 999, 20231831: 999, 20231843: 999, 20230320: 999, 20231854: 999,
-        20220378: 999, 20211168: 999, 20210261: 999, 20200025: 999, 20231218: 999,
-        20241901: 999, 20221593: 999, 20201227: 999, 20241909: 999, 20211166: 999,
-        20241584: 999, 20200307: 999, 20232241: 999, 20220154: 999, 20231834: 999,
-        20231842: 999, 20211352: 999, 20211188: 999, 20181599: 999, 20201608: 999,
-        20201625: 999, 20191347: 999, 20221931: 999, 20201396: 999, 20221995: 999,
-        20221201: 999, 20201638: 999, 20200595: 999, 20201607: 999, 20211014: 999,
-        20201663: 999, 20221300: 999, 20231838: 999, 20191666: 999, 20191579: 999
+    # F1 점수 (예시 데이터) 📉
+    scores_f1_dict = {
+        20231837: 0, 20211402: 0, 20211733: 0, 20231851: 0, 20231852: 0,
+        20231846: 0, 20231831: 0, 20231843: 0, 20230320: 0, 20231854: 0,
+        20220378: 0, 20211168: 0, 20210261: 0, 20200025: 0, 20231218: 0,
+        20241901: 0, 20221593: 0, 20201227: 0, 20241909: 0, 20211166: 0,
+        20241584: 0, 20200307: 0, 20232241: 0, 20220154: 0, 20231834: 0,
+        20231842: 0, 20211352: 0, 20211188: 0, 20181599: 0, 20201608: 0,
+        20201625: 0, 20191347: 0, 20221931: 0, 20201396: 0, 20221995: 0,
+        20221201: 0, 20201638: 0, 20200595: 0, 20201607: 0, 20211014: 0,
+        20201663: 0, 20221300: 0, 20231838: 0, 20191666: 0, 20191579: 0
     }    
 
     
-    return student_ids, scores_accuracy_dict, scores_rmse_dict
+    return student_ids, scores_accuracy_dict, scores_f1_dict
 
 # --- DataFrame 생성 함수 ---
 
-def create_leaderboard_df(student_ids, scores_dict, metric_name, ascending=False):
+def create_leaderboard_df(student_ids, f1_dict, acc_dict, ascending=False):
     """리더보드 순위가 매겨진 DataFrame을 생성합니다."""
     
     df = pd.DataFrame({'Student_ID': student_ids})
-    df[metric_name] = df['Student_ID'].map(scores_dict)
-    
+    df['f1'] = df['Student_ID'].map(f1_dict)
+    df['acc'] = df['Student_ID'].map(acc_dict)
+
     # 점수가 없는 학생은 리더보드에서 제외
     df = df.dropna(subset=[metric_name])
     
     # 점수 기준으로 정렬
-    df = df.sort_values(by=metric_name, ascending=ascending).reset_index(drop=True)
+    df = df.sort_values(by=['f1', 'acc'], ascending=[False, False]).reset_index(drop=True)
     
     # 순위(Rank)를 1부터 시작하도록 설정
     df.index += 1
@@ -76,10 +77,6 @@ def create_leaderboard_df(student_ids, scores_dict, metric_name, ascending=False
     # Student_ID를 문자열로 변경 (표시용)
     df['Student_ID'] = df['Student_ID'].astype(str)
     
-    # RMSE는 소수점 3자리까지만 표시
-    if metric_name == 'RMSE':
-        df[metric_name] = df[metric_name].round(3)
-        
     return df
 
 # --- Streamlit 앱 메인 로직 ---
@@ -94,37 +91,25 @@ def main():
     st.info(f"🗓️ 리더보드는 매일 오전 업데이트 됩니다. (업데이트 시간: {now})")
 
     # --- 3. 데이터 로드 ---
-    student_ids, scores_acc, scores_rmse = get_leaderboard_data()
+    student_ids, scores_acc, scores_f1 = get_leaderboard_data()
 
     # --- 4. Accuracy 리더보드 ---
     st.divider()  # 시각적 구분선
-    st.subheader("🎯 Accuracy (당뇨병 예측 성능)")
-    st.markdown("`Accuracy`는 **높을수록** 좋습니다. (1에 가까울수록 우수)")
+    
+    st.subheader("🎯 f1 (이미지 분류 성능)")
+    st.markdown("`f1`은 **높을수록** 좋습니다. (1에 가까울수록 우수)")
     
     df_acc = create_leaderboard_df(
         student_ids=student_ids,
-        scores_dict=scores_acc,
+        f1_dict=scores_f1,
+        acc_dict=scores_acc,
         metric_name='Accuracy',
         ascending=False  # 높은 점수가 위로
     )
     # width='stretch'로 설정하여 표를 페이지 너비에 맞춥니다. (이전 use_container_width=True 대체)
     st.dataframe(df_acc, width='stretch')
 
-    # --- 5. RMSE 리더보드 (자살 예측) ---
-    st.divider()  # 시각적 구분선
-    st.subheader("📉 RMSE (자살 예측 성능)")
-    st.markdown("`RMSE`는 **낮을수록** 좋습니다. (0에 가까울수록 우수)")
-    
-    df_rmse = create_leaderboard_df(
-        student_ids=student_ids,
-        scores_dict=scores_rmse,
-        metric_name='RMSE',
-        ascending=True  # 낮은 점수가 위로
-    )
-    # width='stretch'로 설정하여 표를 페이지 너비에 맞춥니다. (이전 use_container_width=True 대체)
-    st.dataframe(df_rmse, width='stretch')
-
 # --- 스크립트 실행 ---
 if __name__ == "__main__":
-
     main()
+
