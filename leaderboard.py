@@ -65,7 +65,7 @@ def create_leaderboard_df(student_ids, f1_dict, acc_dict, ascending=False):
     df['acc'] = df['Student_ID'].map(acc_dict)
 
     # 점수가 없는 학생은 리더보드에서 제외
-    df = df.dropna(subset=[metric_name])
+    df = df.dropna(subset=['f1'])
     
     # 점수 기준으로 정렬
     df = df.sort_values(by=['f1', 'acc'], ascending=[False, False]).reset_index(drop=True)
