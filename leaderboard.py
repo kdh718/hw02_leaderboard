@@ -86,8 +86,8 @@ def create_leaderboard_df(student_ids, scores_dict, metric_name, ascending=False
 
 def main():
     # --- 1. 타이틀 및 설명 ---
-    st.title("🏆 HW 01 Leaderboard")
-    st.markdown("본 리더보드는 당뇨병 및 자살 예측 모델의 **My Method 성능**을 평가하여 순위를 매긴 것입니다.")
+    st.title("🏆 HW 02 Leaderboard")
+    st.markdown("본 리더보드는 CNN 모델의 **My Method 성능**을 평가하여 순위를 매긴 것입니다.")
 
     # --- 2. 업데이트 시간 표시 ---
     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -96,7 +96,7 @@ def main():
     # --- 3. 데이터 로드 ---
     student_ids, scores_acc, scores_rmse = get_leaderboard_data()
 
-    # --- 4. Accuracy 리더보드 (당뇨병 예측) ---
+    # --- 4. Accuracy 리더보드 ---
     st.divider()  # 시각적 구분선
     st.subheader("🎯 Accuracy (당뇨병 예측 성능)")
     st.markdown("`Accuracy`는 **높을수록** 좋습니다. (1에 가까울수록 우수)")
@@ -126,4 +126,5 @@ def main():
 
 # --- 스크립트 실행 ---
 if __name__ == "__main__":
+
     main()
