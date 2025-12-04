@@ -103,7 +103,6 @@ def main():
         student_ids=student_ids,
         f1_dict=scores_f1,
         acc_dict=scores_acc,
-        metric_name='Accuracy',
         ascending=False  # 높은 점수가 위로
     )
     # width='stretch'로 설정하여 표를 페이지 너비에 맞춥니다. (이전 use_container_width=True 대체)
@@ -112,5 +111,6 @@ def main():
 # --- 스크립트 실행 ---
 if __name__ == "__main__":
     main()
+
 
 
